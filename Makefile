@@ -5,6 +5,26 @@ ifndef target
 $(error target binary not set. Usage: make target=<target_name>)
 endif
 
+# for docker-build:
+#   build image:
+#       docker build -t gtirb_rewriting .
+#   run container:
+#       docker run -d --rm --name=gtirb_container -v /tmp/workspace:/workspace -it gtirb_rewriting
+
+docker-build:
+	$(eval target_fname := $(shell basename $(target)))
+	# build and start container if not already running
+	docker build -t gtirb_rewriting .
+	docker ps | grep gtirb_container >/dev/null || docker run -d --rm --name=gtirb_container -v /tmp/workspace:/workspace -it gtirb_rewriting
+	mkdir -p out
+	cp $(target) /tmp/workspace
+	cp add_afl.py /tmp/workspace
+	docker exec gtirb_container ddisasm /workspace/$(target_fname) --ir /workspace/$(target_fname).gtirb
+	docker exec gtirb_container python3.9 /workspace/add_afl.py /workspace/$(target_fname).gtirb /workspace/$(target_fname)-afl.gtirb
+	docker exec gtirb_container gtirb-pprinter /workspace/$(target_fname)-afl.gtirb --binary /workspace/$(target_fname).gtirb.afl
+	cp /tmp/workspace/$(target_fname).gtirb out/
+	cp /tmp/workspace/$(target_fname)-afl.gtirb out/
+	cp /tmp/workspace/$(target_fname).gtirb.afl out/
 build:
 	$(eval target_fname := $(shell basename $(target)))
 	mkdir -p out
