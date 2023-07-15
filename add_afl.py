@@ -262,8 +262,9 @@ class AddAFLPass(Pass):
                 push rdx
                 push rdx
                 # Communicate with afl-fuzz. fd 199 is used to communicate with
-                # afl-fuzz. Stop forkserver if write failed. Buffer contents do
-                # not matter.
+                # afl-fuzz. Stop forkserver if write failed. On first write we
+                # send a specific value that __afl_temp is initialised with
+                # that lets afl-fuzz know the mapsize we are using.
                 mov rdx, 4                  # bytes to write
                 lea rsi,[rip + __afl_temp]  # buffer
                 mov rdi, 199                # file descriptor
@@ -394,12 +395,15 @@ class AddAFLPass(Pass):
                     .string "__AFL_SHM_ID"
 
                 .data
-                __afl_global_area_ptr:   .quad   0            # TODO: should be stored as global
+                __afl_global_area_ptr:   .quad   0
                 __afl_area_ptr:   .quad   0
                 __afl_prev_loc:   .quad   0
                 __afl_setup_failure:   .byte   0
-                __afl_temp:   .long   0
                 __afl_fork_pid:   .long   0
+
+                # Let afl-fuzz know we are using a 0x10000 size map (see usage
+                # of FS_OPT_MAPSIZE in AFL source code in src/afl-forkserver.c)
+                __afl_temp:   .long   0xc201ffff
 
             ''', Constraints(x86_syntax=X86Syntax.INTEL))
         )
