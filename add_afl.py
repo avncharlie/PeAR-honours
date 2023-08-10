@@ -390,9 +390,12 @@ class AddAFLPass(Pass):
                 # Return and continue execution
                 jmp __afl_return
 
+                # TODO: page align .rodata and .data?
+
                 .rodata
                 .AFL_SHM_ENV:
                     .string "__AFL_SHM_ID"
+                    .space 3
 
                 .data
                 __afl_global_area_ptr:   .quad   0
@@ -400,10 +403,10 @@ class AddAFLPass(Pass):
                 __afl_prev_loc:   .quad   0
                 __afl_setup_failure:   .byte   0
                 __afl_fork_pid:   .long   0
-
                 # Let afl-fuzz know we are using a 0x10000 size map (see usage
                 # of FS_OPT_MAPSIZE in AFL source code in src/afl-forkserver.c)
                 __afl_temp:   .long   0xc201ffff
+                .space 3
 
             ''', Constraints(x86_syntax=X86Syntax.INTEL))
         )

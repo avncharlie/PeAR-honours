@@ -15,7 +15,38 @@ endif
 #   stop container:
 #     $ docker stop gtirb
 
-docker-build:
+null-transform-asm:
+	$(eval target_fname := $(shell basename $(target)))
+	mkdir -p out
+	docker build -t gtirb_rewriting .
+	docker run -d --rm --name=gtirb_container -v $(shell pwd):/workspace -it gtirb_rewriting
+	cp $(target) out/
+	docker exec gtirb_container ddisasm /workspace/out/$(target_fname) --ir /workspace/out/$(target_fname).gtirb
+	docker exec gtirb_container gtirb-pprinter /workspace/out/$(target_fname).gtirb --asm /workspace/out/$(target_fname).identity.S
+	rm out/$(target_fname)
+	docker stop gtirb_container
+null-transform-binary:
+	$(eval target_fname := $(shell basename $(target)))
+	mkdir -p out
+	docker build -t gtirb_rewriting .
+	docker run -d --rm --name=gtirb_container -v $(shell pwd):/workspace -it gtirb_rewriting
+	cp $(target) out/
+	docker exec gtirb_container ddisasm /workspace/out/$(target_fname) --ir /workspace/out/$(target_fname).gtirb
+	docker exec gtirb_container gtirb-pprinter /workspace/out/$(target_fname).gtirb --binary /workspace/out/$(target_fname).identity
+	rm out/$(target_fname)
+	docker stop gtirb_container
+docker-build-asm:
+	$(eval target_fname := $(shell basename $(target)))
+	mkdir -p out
+	docker build -t gtirb_rewriting .
+	docker run -d --rm --name=gtirb_container -v $(shell pwd):/workspace -it gtirb_rewriting
+	cp $(target) out/
+	docker exec gtirb_container ddisasm /workspace/out/$(target_fname) --ir /workspace/out/$(target_fname).gtirb
+	docker exec gtirb_container python3.9 /workspace/add_afl.py /workspace/out/$(target_fname).gtirb /workspace/out/$(target_fname)-afl.gtirb
+	docker exec gtirb_container gtirb-pprinter /workspace/out/$(target_fname)-afl.gtirb --asm /workspace/out/$(target_fname).gtirb.afl.S
+	rm out/$(target_fname)
+	docker stop gtirb_container
+docker-build-binary:
 	$(eval target_fname := $(shell basename $(target)))
 	mkdir -p out
 	docker build -t gtirb_rewriting .
