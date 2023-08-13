@@ -1,5 +1,10 @@
 *.swp
-out
-afl-out*/
-in/
-corpus/
+.DS_Store
+
+out/
+
+instrumentation/afl-instrumentation.o
+instrumentation/afl-instrumentation-disass
+
+sharedmem_hook_template/hook.o
+sharedmem_hook_template/libhook.a
