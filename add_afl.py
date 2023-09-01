@@ -757,7 +757,7 @@ class AddAFLPass(Pass):
 
         if added_persistent_mode:
             persistent_loc = f'function: {self.persistent_mode_func}' if self.persistent_mode_func else f'address: {hex(self.persistent_mode_addr)}'
-            print(f'{bcolors.OKGREEN}Added persistent mode to {persistent_loc} {bcolors.ENDC}')
+            print(f'{bcolors.OKGREEN}Added persistent mode to {persistent_loc} (with loop count of {self.persistent_mode_count}) {bcolors.ENDC}')
 
         if is_deferred:
             deferred_loc = f'function: {self.init_func}' if self.init_func else f'address: {hex(self.init_addr)}'

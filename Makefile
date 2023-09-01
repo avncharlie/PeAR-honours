@@ -1,11 +1,24 @@
 .PHONY: all build disass clean
 all: build
 
+#ifndef TARGET
+#	$(error target binary not set. Usage: make TARGET=<target_name>)
+#else
+#    TARGET_FNAME := $(shell basename $(TARGET))
+#endif
+
+COLOR_RESET = \033[0m
+COLOR_RED = \033[31m
+COLOR_GREEN = \033[32m
+COLOR_YELLOW = \033[33m
+COLOR_BLUE = \033[34m
+COLOR_CYAN = \033[36m
+
 ifndef TARGET
-	$(error target binary not set. Usage: make TARGET=<target_name>)
-else
-    TARGET_FNAME := $(shell basename $(TARGET))
+$(error TARGET not specified. Please provide the target as follows: make TARGET=<target_name>)
 endif
+
+TARGET_FNAME := $(shell basename $(TARGET))
 
 ifeq ($(FORKSERVER_INIT_ADDR),)
     FORKSERVER_INIT_ADDR_ARG :=
@@ -85,6 +98,7 @@ build:
 	$(GEN_BINARY_CMD)
 	rm out/$(TARGET_FNAME)
 	docker stop gtirb_container
+	@echo "$(COLOR_GREEN)Instrumented assembly saved to $(shell pwd)/out/$(TARGET_FNAME).gtirb.afl.S$(COLOR_RESET)"
 	$(DISASS_CMD)
 
 test:
