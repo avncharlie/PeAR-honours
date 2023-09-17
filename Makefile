@@ -86,6 +86,21 @@ null-transform:
 	rm out/$(TARGET_FNAME)
 	docker stop gtirb_container
 
+build-no-docker:
+	mkdir -p out
+	cp $(TARGET) out/
+	ddisasm out/$(TARGET_FNAME) --ir out/$(TARGET_FNAME).gtirb
+	python3.9 add_afl.py out/$(TARGET_FNAME).gtirb out/$(TARGET_FNAME)-afl.gtirb --patch-dir instrumentation/patches/generated/ $(FORKSERVER_INIT_ADDR_ARG) $(FORKSERVER_INIT_FUNC_ARG) $(PERSISTENT_MODE_INIT_ADDR_ARG) $(PERSISTENT_MODE_INIT_FUNC_ARG) $(PERSISTENT_MODE_COUNT_ARG) $(SHAREDMEM_HOOK_LOC_ARG) $(SHAREDMEM_HOOK_FUNC_ARG)
+	@echo "$(COLOR_GREEN)Instrumented GTIRB IR saved to $(shell pwd)/out/$(TARGET_FNAME)-afl.gtirb$(COLOR_RESET)"
+	gtirb-pprinter out/$(TARGET_FNAME)-afl.gtirb --asm out/$(TARGET_FNAME).S
+
+fuzzbench:
+	mkdir -p out
+	cp $(TARGET) out/
+	ddisasm out/$(TARGET_FNAME) --ir out/$(TARGET_FNAME).gtirb
+	python3.9 add_afl.py out/$(TARGET_FNAME).gtirb out/$(TARGET_FNAME)-afl.gtirb --patch-dir instrumentation/patches/generated/ $(FORKSERVER_INIT_ADDR_ARG) $(FORKSERVER_INIT_FUNC_ARG) $(PERSISTENT_MODE_INIT_ADDR_ARG) $(PERSISTENT_MODE_INIT_FUNC_ARG) $(PERSISTENT_MODE_COUNT_ARG) $(SHAREDMEM_HOOK_LOC_ARG) $(SHAREDMEM_HOOK_FUNC_ARG)
+	@echo "$(COLOR_GREEN)Instrumented GTIRB IR saved to $(shell pwd)/out/$(TARGET_FNAME)-afl.gtirb$(COLOR_RESET)"
+
 build:
 	docker stop gtirb_container || true
 	mkdir -p out
