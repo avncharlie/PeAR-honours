@@ -1,4 +1,4 @@
-# afl-rewrite
+# PeAR
 
 Add AFL instrumentation to x86_64 binaries using GTIRB. Supports persistent
 mode, deferred initialisation and shared memory fuzzing.
@@ -6,7 +6,7 @@ mode, deferred initialisation and shared memory fuzzing.
 Check out the tutorial in example/README.md
 
 ## Quick start
-`make TARGET=/path/to/binary`
+`TARGET=/path/to/binary make`
 
 ## Options
 
