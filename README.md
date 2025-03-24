@@ -1,3 +1,6 @@
+# Moved to: https://github.com/avncharlie/PeAR
+## This is an archived version of PeAR, kept as it was when I submitted my honours thesis.  
+
 # PeAR
 
 Add AFL instrumentation to x86_64 binaries using GTIRB. Supports persistent
